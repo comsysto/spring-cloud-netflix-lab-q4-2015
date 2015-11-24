@@ -3,6 +3,9 @@ version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'application'
+
+mainClassName = 'com.comsysto.netflix.eurekaserver.Application'
 sourceCompatibility = 1.8
 
 repositories {
