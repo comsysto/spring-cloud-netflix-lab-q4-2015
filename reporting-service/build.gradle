@@ -21,5 +21,7 @@ configurations {
 dependencies {
     compile 'org.springframework.cloud:spring-cloud-starter-eureka:1.0.4.RELEASE'
     compile 'com.netflix.hystrix:hystrix-javanica:1.4.21'
+    // for health checks etc. - monitoring!
+    compile 'org.springframework.boot:spring-boot-starter-actuator:1.2.6.RELEASE'
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }

@@ -12,12 +12,12 @@ public class DummyServiceClient {
 	@Autowired
 	private RestTemplate restTemplate;
 
-	 @HystrixCommand(fallbackMethod="fallbackReport")
-		public String callDummy() {
-			return restTemplate.getForObject("http://dummy-service/dummy", String.class);
-		}
-	    
-	    public String fallbackReport() {
+	@HystrixCommand(fallbackMethod="fallbackReport")
+	public String callDummy() {
+		return restTemplate.getForObject("http://dummy-service/dummy", String.class);
+	}
+
+	public String fallbackReport() {
 	    	return "ich bin ein fallback report";
 	    }
 }
