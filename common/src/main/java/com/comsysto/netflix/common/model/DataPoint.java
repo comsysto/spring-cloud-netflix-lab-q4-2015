@@ -22,4 +22,12 @@ public class DataPoint {
     public BigDecimal getValue() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return "DataPoint{" +
+                "key=" + key +
+                ", value=" + value +
+                '}';
+    }
 }

@@ -26,4 +26,13 @@ public class DataPointKey {
     public DataType getType() {
         return type;
     }
+
+    @Override
+    public String toString() {
+        return "DataPointKey{" +
+                "timestamp=" + timestamp +
+                ", locationId='" + locationId + '\'' +
+                ", type=" + type +
+                '}';
+    }
 }

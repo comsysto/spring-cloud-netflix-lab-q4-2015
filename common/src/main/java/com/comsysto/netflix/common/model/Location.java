@@ -25,4 +25,13 @@ public class Location {
     public String getCountry() {
         return country;
     }
+
+    @Override
+    public String toString() {
+        return "Location{" +
+                "id='" + id + '\'' +
+                ", city='" + city + '\'' +
+                ", country='" + country + '\'' +
+                '}';
+    }
 }
