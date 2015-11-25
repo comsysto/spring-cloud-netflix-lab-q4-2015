@@ -1,9 +1,9 @@
 package com.comsysto.netflix.reporting;
 
+import com.comsysto.netflix.common.model.Country;
 import com.comsysto.netflix.common.model.DataType;
-import com.comsysto.netflix.common.model.Location;
 import com.comsysto.netflix.common.model.Report;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.google.common.collect.Maps;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,10 +18,6 @@ public class WebController {
 
     public static final String DATE_FORMAT_PATTERN = "dd.MM.yyyy,  HH:mm:ss z";
 
-    @Autowired
-    private DummyServiceClient dummyServiceClient;
-
-
     @RequestMapping("report")
     public String report() {
         Report report = createDummyReport();
@@ -29,29 +25,36 @@ public class WebController {
         StringBuilder sb = new StringBuilder();
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT_PATTERN);
-        sb.append("Report Date: ")
+        sb.append("<html><body>");
+        sb.append("<span>Report Date: ")
                 .append(simpleDateFormat.format(report.getReportGenerationTime()))
-                .append("\n");
+                .append("</span><br/><br/>");
 
-        sb.append("more data to come...");
+        sb.append("<table border=\"1\">");
+        for (Map.Entry<Country, Map<DataType, BigInteger>> line : report.getReportData().entrySet()) {
+            sb.append("<tr>");
+            sb.append("<td>").append(line.getKey().getName()).append("</td>");
+            for (Map.Entry<DataType, BigInteger> dataCell : line.getValue().entrySet()) {
+                sb.append("<td>").append(dataCell.getKey()).append(": ").append(dataCell.getValue()).append("</td>");
+            }
+            sb.append("</tr>");
+        }
+        sb.append("</table>");
+        sb.append("</body></html>");
         return sb.toString();
     }
 
 
     public Report createDummyReport() {
-        Map<DataType, BigInteger> set1 = new HashMap<DataType, BigInteger>();
-        set1.put(DataType.TOTAL_SALES, BigInteger.ONE);
+        Map<DataType, BigInteger> set1 = new HashMap<>();
+        set1.put(DataType.TOTAL_SOLD_AMOUNT, BigInteger.ONE);
 
-        Map<DataType, BigInteger> set2 = new HashMap<DataType, BigInteger>();
-        set2.put(DataType.TOTAL_SALES, BigInteger.ZERO);
+        Map<DataType, BigInteger> set2 = new HashMap<>();
+        set2.put(DataType.TOTAL_SOLD_AMOUNT, BigInteger.ZERO);
 
-        Map<DataType, BigInteger> set3 = new HashMap<DataType, BigInteger>();
-        set3.put(DataType.TOTAL_SALES, BigInteger.TEN);
-
-        Map<Location, Map<DataType, BigInteger>> reportData = new HashMap();
-        reportData.put(new Location("l1", "Munich", "Germany"), set1);
-        reportData.put(new Location("l2", "Frankfurt", "Germany"), set2);
-        reportData.put(new Location("l3", "Vienna", "Austria"), set3);
+        Map<Country, Map<DataType, BigInteger>> reportData = Maps.newHashMap();
+        reportData.put(new Country("Germany"), set1);
+        reportData.put(new Country("Austria"), set2);
         return new Report(new Date(System.currentTimeMillis()), reportData);
     }
 }
