@@ -24,6 +24,7 @@ configurations {
 
 dependencies {
     compile files('../common/build/libs/common-1.0-SNAPSHOT.jar')
+    compile 'org.springframework.cloud:spring-cloud-starter-config:1.0.3.RELEASE'
     compile 'org.springframework.cloud:spring-cloud-starter-eureka:1.0.4.RELEASE'
     // for health checks etc. - monitoring!
     compile 'org.springframework.boot:spring-boot-starter-actuator:1.2.6.RELEASE'
