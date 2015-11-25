@@ -8,6 +8,10 @@ apply plugin: 'application'
 mainClassName = 'com.comsysto.netflix.data.source.totalsales.Application'
 sourceCompatibility = 1.8
 
+run {
+	systemProperties System.getProperties()
+}
+
 repositories {
     mavenCentral()
     jcenter()
