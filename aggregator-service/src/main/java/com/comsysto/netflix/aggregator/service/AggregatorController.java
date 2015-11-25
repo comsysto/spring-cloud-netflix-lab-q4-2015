@@ -1,21 +1,16 @@
 package com.comsysto.netflix.aggregator.service;
 
-import java.math.BigInteger;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
+import com.comsysto.netflix.common.model.*;
+import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.comsysto.netflix.common.model.Country;
-import com.comsysto.netflix.common.model.DataPoint;
-import com.comsysto.netflix.common.model.DataType;
-import com.comsysto.netflix.common.model.Location;
-import com.comsysto.netflix.common.model.Report;
-import com.google.common.collect.Maps;
+import java.math.BigInteger;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 public class AggregatorController {
@@ -44,9 +39,10 @@ public class AggregatorController {
     				sum = BigInteger.ZERO;
     			}
     			DataPoint dataPoint = dataServiceClient.getDataPoint(location, dataType);
-    			sum = sum.add(dataPoint.getValue().toBigInteger());
-    			
-    			map.get(country).put(dataType, sum);
+				if (dataPoint != null) {
+                    sum = sum.add(dataPoint.getValue().toBigInteger());
+                    map.get(country).put(dataType, sum);
+				}
     		}
     	}
     	
