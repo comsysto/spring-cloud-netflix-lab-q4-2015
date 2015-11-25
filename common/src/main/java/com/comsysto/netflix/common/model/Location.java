@@ -6,9 +6,9 @@ package com.comsysto.netflix.common.model;
 public class Location {
     private final String id;
     private final String city;
-    private final String country;
+    private final Country country;
 
-    public Location(String id, String city, String country) {
+    public Location(String id, String city, Country country) {
         this.id = id;
         this.city = city;
         this.country = country;
@@ -22,7 +22,7 @@ public class Location {
         return city;
     }
 
-    public String getCountry() {
+    public Country getCountry() {
         return country;
     }
 

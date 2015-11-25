@@ -6,9 +6,9 @@ import java.util.Map;
 
 public class Report {
     private final Date reportGenerationTime;
-    private final Map<Location, Map<DataType, BigInteger>> reportData;
+    private final Map<Country, Map<DataType, BigInteger>> reportData;
 
-    public Report(Date reportGenerationTime, Map<Location, Map<DataType, BigInteger>> reportData) {
+    public Report(Date reportGenerationTime, Map<Country, Map<DataType, BigInteger>> reportData) {
         this.reportGenerationTime = reportGenerationTime;
         this.reportData = reportData;
     }
@@ -17,7 +17,7 @@ public class Report {
         return reportGenerationTime;
     }
 
-    public Map<Location, Map<DataType, BigInteger>> getReportData() {
+    public Map<Country, Map<DataType, BigInteger>> getReportData() {
         return reportData;
     }
 }
