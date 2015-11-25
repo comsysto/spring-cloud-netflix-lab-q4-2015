@@ -1,4 +1,4 @@
-package com.comsysto.netflix.data.current;
+package com.comsysto.netflix.data.historical;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

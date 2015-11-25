@@ -34,8 +34,8 @@ public class Application {
 
     @Autowired
     private RestTemplate restTemplate;
-
-    @Value("${data.source.location}}")
+    
+    @Value("${data.source.location}")
     private String locationId;
     @Value("${data.source.success.rate}")
     private int successRate;

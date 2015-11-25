@@ -1,6 +1,7 @@
 package com.comsysto.netflix.data.current.web;
 
 import com.comsysto.netflix.common.model.DataPoint;
+import com.comsysto.netflix.common.model.DataPointList;
 import com.comsysto.netflix.common.model.DataType;
 import com.comsysto.netflix.data.current.repository.CurrentDataRepository;
 import com.google.common.base.Preconditions;
@@ -21,10 +22,10 @@ public class CurrentDataController {
     private CurrentDataRepository repository;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public List<DataPoint> fetchAll() {
+    public DataPointList fetchAll() {
         List<DataPoint> dataPoints = repository.fetchAll();
         LOGGER.info("fetchAll returns {} data points.", dataPoints.size());
-        return dataPoints;
+        return new DataPointList(dataPoints);
     }
 
     @RequestMapping(value = "/{type}/{locationId}", method = RequestMethod.GET)
