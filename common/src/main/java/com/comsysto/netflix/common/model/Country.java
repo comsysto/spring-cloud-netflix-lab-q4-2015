@@ -2,10 +2,14 @@ package com.comsysto.netflix.common.model;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Country {
     private final String name;
 
-    public Country(String name) {
+    @JsonCreator
+    public Country(@JsonProperty("name")String name) {
         this.name = name;
     }
 

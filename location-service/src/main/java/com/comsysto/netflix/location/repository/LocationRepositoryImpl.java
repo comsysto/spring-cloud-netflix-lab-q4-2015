@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
+import com.comsysto.netflix.common.model.Country;
 import com.comsysto.netflix.common.model.Location;
 import com.google.common.collect.Lists;
 
@@ -14,14 +15,14 @@ public class LocationRepositoryImpl implements LocationRepository {
     
     static {
     	data = Lists.newArrayList();
-    	data.add(new Location("MUC", "Munich", "Germany"));
-    	data.add(new Location("FRA", "Frankfurt", "Germany"));
-    	data.add(new Location("BER", "Berlin", "Germany"));
-    	data.add(new Location("WIE", "Wien", "Austria"));
-    	data.add(new Location("PAR", "Paris", "France"));
-    	data.add(new Location("LON", "London", "England"));
-    	data.add(new Location("HAV", "Havanna", "Cuba"));
-    	data.add(new Location("TIM", "Timbuktu", "Mali"));
+    	data.add(new Location("MUC", "Munich", new Country("Germany")));
+    	data.add(new Location("FRA", "Frankfurt", new Country("Germany")));
+    	data.add(new Location("BER", "Berlin", new Country("Germany")));
+    	data.add(new Location("WIE", "Wien", new Country("Austria")));
+    	data.add(new Location("PAR", "Paris", new Country("France")));
+    	data.add(new Location("LON", "London", new Country("England")));
+    	data.add(new Location("HAV", "Havanna", new Country("Cuba")));
+    	data.add(new Location("TIM", "Timbuktu", new Country("Mali")));
     }
 
 	@Override
