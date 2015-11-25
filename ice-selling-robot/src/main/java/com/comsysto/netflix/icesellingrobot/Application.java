@@ -1,4 +1,4 @@
-package com.comsysto.netflix.data.source.totalsales;
+package com.comsysto.netflix.icesellingrobot;
 
 import com.comsysto.netflix.common.model.DataPoint;
 import com.comsysto.netflix.common.model.DataPointKey;
@@ -40,28 +40,45 @@ public class Application {
     @Value("${data.source.success.rate}")
     private int successRate;
 
+    private final IceSellingRobot robot = new IceSellingRobot();
+
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
 
-    @Scheduled(fixedDelay = 1000)
-    public void storeCurrentData() {
+    @Scheduled(fixedDelay = 1_000)
+    public void sellAndReport() {
+        // always sell
+        robot.sell(randomAmount());
+
+        // now try to communicate
         if (RANDOM.nextInt(100) > successRate) {
             return;
         }
 
-        DataType type = DataType.TOTAL_SALES;
-        DataPoint data = new DataPoint(
-                new DataPointKey(System.currentTimeMillis(), locationId, type),
-                randomData()
-        );
+        send(new DataPoint(
+                new DataPointKey(System.currentTimeMillis(), locationId, DataType.TOTAL_SOLD_AMOUNT),
+                BigDecimal.valueOf(robot.getTotalSoldAmount())
+        ));
 
-        LOGGER.info("put data for http://current-data-service/{}/{}", type, locationId);
-        restTemplate.put("http://current-data-service/{type}/{locationId}", data, type, locationId);
+        send(new DataPoint(
+                new DataPointKey(System.currentTimeMillis(), locationId, DataType.REMAINING_STOCK_AMOUNT),
+                BigDecimal.valueOf(robot.getRemainingStockAmount())
+        ));
     }
 
-    private BigDecimal randomData() {
-        return BigDecimal.valueOf(RANDOM.nextInt(1000));
+    private void send(DataPoint data) {
+        LOGGER.info("put data for http://current-data-service/{}/{} = {}", data.getKey().getType(), data.getKey().getLocationId(), data.getValue());
+        restTemplate.put("http://current-data-service/{type}/{locationId}", data, data.getKey().getType(), data.getKey().getLocationId());
+    }
+
+    @Scheduled(fixedDelay = 20_000)
+    public void refill() {
+        robot.refill();
+    }
+
+    private long randomAmount() {
+        return RANDOM.nextInt(1000);
     }
 
 }

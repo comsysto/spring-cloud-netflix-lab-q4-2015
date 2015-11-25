@@ -2,54 +2,27 @@ package com.comsysto.netflix.data.current.repository;
 
 import com.comsysto.netflix.common.model.DataPoint;
 import com.comsysto.netflix.common.model.DataType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import com.google.common.collect.Lists;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Repository
 public class CurrentDataRepositoryImpl implements CurrentDataRepository {
 
-    private final Map<StorageKey, DataPoint> data;
-    private final int outdatedThresholdInSeconds;
-    private final Predicate<DataPoint> isValidPredicate;
-
-    @Autowired
-    public CurrentDataRepositoryImpl(@Value("${data.current.outdated.threshold.seconds}") int outdatedThresholdInSeconds) {
-        this.data = new HashMap<>();
-        this.outdatedThresholdInSeconds = outdatedThresholdInSeconds;
-        this.isValidPredicate = dataPoint -> dataPoint != null && !isOutdated(dataPoint.getKey().getTimestamp());
-    }
-
-    @Override
-    public int getOutdatedThresholdInSeconds() {
-        return outdatedThresholdInSeconds;
-    }
+    private final Map<StorageKey, DataPoint> data = new HashMap<>();
 
     @Override
     public DataPoint get(DataType type, String locationId) {
-        DataPoint dataPoint = data.get(new StorageKey(type, locationId));
-        if (isValidPredicate.test(dataPoint)) {
-            return dataPoint;
-        } else {
-            return null;
-        }
+        return data.get(new StorageKey(type, locationId));
     }
 
     @Override
     public List<DataPoint> fetchAll() {
-        return data.values().stream().filter(isValidPredicate).collect(Collectors.toList());
-    }
-
-    private boolean isOutdated(long timestamp) {
-        long oldestValidTimestamp = System.currentTimeMillis() - (outdatedThresholdInSeconds * 1000);
-        return oldestValidTimestamp > timestamp;
+        return Lists.newArrayList(data.values());
     }
 
     @Override
@@ -65,14 +38,6 @@ public class CurrentDataRepositoryImpl implements CurrentDataRepository {
         public StorageKey(DataType type, String locationId) {
             this.type = type;
             this.locationId = locationId;
-        }
-
-        public String getLocationId() {
-            return locationId;
-        }
-
-        public DataType getType() {
-            return type;
         }
 
         @Override

@@ -5,7 +5,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'application'
 
-mainClassName = 'com.comsysto.netflix.data.source.totalsales.Application'
+mainClassName = 'com.comsysto.netflix.icesellingrobot.Application'
 sourceCompatibility = 1.8
 
 run {
