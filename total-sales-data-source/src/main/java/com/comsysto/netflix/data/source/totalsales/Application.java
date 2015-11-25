@@ -3,6 +3,8 @@ package com.comsysto.netflix.data.source.totalsales;
 import com.comsysto.netflix.common.model.DataPoint;
 import com.comsysto.netflix.common.model.DataPointKey;
 import com.comsysto.netflix.common.model.DataType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -19,6 +21,8 @@ import java.util.Random;
 @SpringBootApplication
 @EnableScheduling
 public class Application {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
     public static final Random RANDOM = new Random();
 
@@ -45,6 +49,7 @@ public class Application {
                 randomData()
         );
 
+        LOGGER.info("put data for http://current-data-service/{}/{}", type, locationId);
         restTemplate.put("http://current-data-service/{type}/{locationId}", data, type, locationId);
     }
 
