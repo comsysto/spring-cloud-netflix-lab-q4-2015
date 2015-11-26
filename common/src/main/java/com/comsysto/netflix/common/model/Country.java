@@ -1,9 +1,9 @@
 package com.comsysto.netflix.common.model;
 
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Objects;
 
 public class Country {
     private final String name;
@@ -32,8 +32,6 @@ public class Country {
 
     @Override
     public String toString() {
-        return "Country{" +
-                "name='" + name + '\'' +
-                '}';
+        return name;
     }
 }

@@ -1,16 +1,15 @@
 package com.comsysto.netflix.reporting;
 
-import java.math.BigInteger;
-import java.text.SimpleDateFormat;
-import java.util.Map;
-
+import com.comsysto.netflix.common.model.Country;
+import com.comsysto.netflix.common.model.DataType;
+import com.comsysto.netflix.common.model.Report;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.comsysto.netflix.common.model.Country;
-import com.comsysto.netflix.common.model.DataType;
-import com.comsysto.netflix.common.model.Report;
+import java.math.BigInteger;
+import java.text.SimpleDateFormat;
+import java.util.Map;
 
 @RestController
 public class WebController {
@@ -26,11 +25,18 @@ public class WebController {
 
         StringBuilder sb = new StringBuilder();
 
+        long ageInMilliseconds = System.currentTimeMillis() - report.getReportGenerationTime().getTime();
+
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT_PATTERN);
         sb.append("<html><body>");
         sb.append("<span>Report Date: ")
                 .append(simpleDateFormat.format(report.getReportGenerationTime()))
                 .append("</span><br/><br/>");
+        sb.append(String.format("<div style=\"background: rgba(220,0,0,%s)\">Report Age in Milliseconds: ", ageInMilliseconds / 20000.0))
+                .append("<span id=\"reportAge\">")
+                .append(ageInMilliseconds)
+                .append("</span>")
+                .append("</div><br/><br/>");
 
         sb.append("<table border=\"1\">");
         for (Map.Entry<Country, Map<DataType, BigInteger>> line : report.getReportData().entrySet()) {

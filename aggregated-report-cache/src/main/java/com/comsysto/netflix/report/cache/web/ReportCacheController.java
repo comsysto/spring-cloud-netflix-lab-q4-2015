@@ -17,7 +17,7 @@ public class ReportCacheController {
     private ReportRepository repository;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public Report fetchAll() {
+    public Report get() {
         Report report = repository.get();
         LOGGER.info("get report: '{}'", report);
         return report;
