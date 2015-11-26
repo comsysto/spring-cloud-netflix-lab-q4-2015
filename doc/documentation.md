@@ -24,8 +24,8 @@ This file can serve as a template for the resulting blog post.
 ## Understanding the Bottleneck
 
 - the critical point of the entire system is the aggregation due to its slow connection
-- remedy 1: scale out (measurement 1)
-- remedy 2: optimize slow connection (measurement 2)
+- remedy 1: scale out (JMeter measurement 1)
+- remedy 2: optimize slow connection (JMeter measurement 2)
 - TODO statistics / tables
 - remedy 3: design for always using the cache (only applicable when results are identical for all users. could be done here, but only because we have a simplistic scenario.)
 
