@@ -30,8 +30,7 @@ This file can serve as a template for the resulting blog post.
 
 ## Our Lessons Learned
 
-- Spring Boot makes it really easy to build and run dozens of services.
-- Spring Boot makes it really hard to figure out what is wrong when things do not work out of the box. Available Spring Cloud documentation is not always sufficient.
+- Spring Boot makes it really easy to build and run dozens of services, but really hard to figure out what is wrong when things do not work out of the box. Available Spring Cloud documentation is not always sufficient.
 - Eureka works like a charm when it comes to service discovery. Simply use the name of the target in an URL and put it into a RestTemplate.
 - Everything else is handled transparently - including client-side load balancing with Ribbon (https://github.com/Netflix/ribbon)!
 - In another lab on distributed systems, we spent a lot of time working around this issue. This time, everything was just right.
