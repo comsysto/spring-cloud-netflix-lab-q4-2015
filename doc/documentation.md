@@ -19,7 +19,7 @@ This file can serve as a template for the resulting blog post.
 - TODO screenshot from report
 - TODO screenshot from cloud dashboard
 - TODO screenshot from hystrix dashboard
-- technologies from spring cloud: eureka, hystrix, config server, hystrix dashboard
+- technologies from spring gacloud: eureka, hystrix, config server, hystrix dashboard
 
 ## Understanding the Bottleneck
 
@@ -42,6 +42,7 @@ Measurement with 1 aggregation server, 1min, 500ms Hit-Rate per Thread, Historiz
 - Eureka works like a charm when it comes to service discovery. Simply use the name of the target in an URL and put it into a RestTemplate.
 - Everything else is handled transparently - including client-side load balancing with Ribbon (https://github.com/Netflix/ribbon)!
 - In another lab on distributed systems, we spent a lot of time working around this issue. This time, everything was just right.
+- Measuring the effect of scaling out is nearly impossible on a developer machine. This could be easily achieved in the cloud.
 
 ## In Brief: Should you use Spring Cloud Netflix?
 
