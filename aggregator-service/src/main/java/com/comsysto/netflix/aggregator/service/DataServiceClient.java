@@ -16,7 +16,7 @@ public class DataServiceClient {
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(DataServiceClient.class);
 	
-	private static final int THREAD_SLEEP_TIME=20;
+	private static final int THREAD_SLEEP_TIME=40;
 
 	@Autowired
 	private RestTemplate restTemplate;

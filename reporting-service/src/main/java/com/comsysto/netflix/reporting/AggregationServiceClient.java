@@ -16,6 +16,7 @@ import com.comsysto.netflix.common.model.DataType;
 import com.comsysto.netflix.common.model.Report;
 import com.google.common.collect.Maps;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 
 @Component
 public class AggregationServiceClient {
@@ -25,7 +26,14 @@ public class AggregationServiceClient {
 	@Autowired
 	private RestTemplate restTemplate;
 
-	@HystrixCommand(fallbackMethod="createDummyReport")
+	@HystrixCommand(
+		fallbackMethod="createDummyReport",
+		commandProperties={
+			@HystrixProperty(name="circuitBreaker.requestVolumeThreshold", value="2"),
+			@HystrixProperty(name="circuitBreaker.sleepWindowInMilliseconds", value="10000")
+		},
+		threadPoolKey="getReportPool"
+	)
 	public Report getReport() {
 		LOGGER.info("fetching data point from http://aggregator-service/");
 		return restTemplate.getForObject("http://aggregator-service/", Report.class);
