@@ -32,10 +32,16 @@ This file can serve as a template for the resulting blog post.
 
 - Spring Boot makes it really easy to build and run dozens of services.
 - Spring Boot makes it really hard to figure out what is wrong when things do not work out of the box. Available Spring Cloud documentation is not always sufficient.
-- Eureka works like a charm when it comes to service discovery. In another lab on distributed systems, we spent a lot of time working around this issue (TODO link to hash-collision posts). This time, everything was just right.
+- Eureka works like a charm when it comes to service discovery. Simply use the name of the target in an URL and put it into a RestTemplate.
+- Everything else is handled transparently - including client-side load balancing with Ribbon (https://github.com/Netflix/ribbon)!
+- In another lab on distributed systems, we spent a lot of time working around this issue. This time, everything was just right.
 
 ## In Brief: Should you use Spring Cloud Netflix?
 
-- Eureka or some sort of "intelligent" service discovery: definitely yes when aiming at a microservice architecture
-- Hystrix: very useful to preventing cascading errors throughout the system, but cannot be used in a production environment without suitable monitoring. Also, it introduces a few pitfalls in development (such as changed behavior due to timeouts while debugging in a breakpoint).
-- we did not evaluate integration issues with non-Spring-Boot projects. For Spring Boot, almost everything is pretty much up and running with a single dependency. However, Spring Boot might be too simplistic for complex services (see Lessons Learned).
+- So what is our recommendation after all?
+- We were totally impressed by the way Eureka makes service discovery as easy as it can be.
+- Given you are running Spring Boot, starting the Eureka server and making each microservice a Eureka client is nothing more than dependencies and annotations. On the other hand, we did not evaluate its integration in other environments.
+- Hystrix is very useful for preventing cascading errors throughout the system, but it cannot be used in a production environment without suitable monitoring unless you have a soft spot for flying blind.
+- Also, it introduces a few pitfalls during development. For example, when debugging a Hystrix command the calling code will probably detect a timeout in the meantime which can give you completely different behavior.
+- However, if you got the tools and skills to handle the additional complexity, Hystrix is definitely a winner.
+- In fact, this restriction applies to microservice architectures in general. You have to go a long way for being able to run it - but once you are, you can scale almost infinitely.
