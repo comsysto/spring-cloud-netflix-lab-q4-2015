@@ -23,11 +23,18 @@ This file can serve as a template for the resulting blog post.
 
 ## Understanding the Bottleneck
 
+Measurement with 1 aggregation server, 1min, 500ms Hit-Rate per Thread, Historize-Job-Rate 30s
+- 3 threads: 0,78s average age
+- 5 threads: 1,08s average age
+- 7 threads: 3,05s average age
+- 7 threads, fast network: 0,74s average age
+
 - the critical point of the entire system is the aggregation due to its slow connection
-- remedy 1: scale out (JMeter measurement 1)
-- remedy 2: optimize slow connection (JMeter measurement 2)
+- remedy 1: scale out (hard to test on our computer which already run so many threads)
+- remedy 2: optimize slow connection (see measurement)
 - TODO statistics / tables
 - remedy 3: design for always using the cache (only applicable when results are identical for all users. could be done here, but only because we have a simplistic scenario.)
+- note that the job filling the cache can also fail under heavy load!
 
 ## Our Lessons Learned
 
