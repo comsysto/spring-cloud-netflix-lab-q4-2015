@@ -1,11 +1,11 @@
 package com.comsysto.netflix.common.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Report {
     private final Date reportGenerationTime;
@@ -23,5 +23,13 @@ public class Report {
 
     public Map<Country, Map<DataType, BigInteger>> getReportData() {
         return reportData;
+    }
+
+    @Override
+    public String toString() {
+        return "Report{" +
+                "reportGenerationTime=" + reportGenerationTime +
+                ", reportData=" + reportData +
+                '}';
     }
 }
