@@ -4,11 +4,15 @@ import java.math.BigInteger;
 import java.util.Date;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Report {
     private final Date reportGenerationTime;
     private final Map<Country, Map<DataType, BigInteger>> reportData;
 
-    public Report(Date reportGenerationTime, Map<Country, Map<DataType, BigInteger>> reportData) {
+    @JsonCreator
+    public Report(@JsonProperty("reportGenerationTime")Date reportGenerationTime, @JsonProperty("reportData")Map<Country, Map<DataType, BigInteger>> reportData) {
         this.reportGenerationTime = reportGenerationTime;
         this.reportData = reportData;
     }

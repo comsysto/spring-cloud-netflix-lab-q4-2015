@@ -1,26 +1,28 @@
 package com.comsysto.netflix.reporting;
 
-import com.comsysto.netflix.common.model.Country;
-import com.comsysto.netflix.common.model.DataType;
-import com.comsysto.netflix.common.model.Report;
-import com.google.common.collect.Maps;
+import java.math.BigInteger;
+import java.text.SimpleDateFormat;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigInteger;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import com.comsysto.netflix.common.model.Country;
+import com.comsysto.netflix.common.model.DataType;
+import com.comsysto.netflix.common.model.Report;
 
 @RestController
 public class WebController {
 
     public static final String DATE_FORMAT_PATTERN = "dd.MM.yyyy,  HH:mm:ss z";
+    
+    @Autowired
+    private AggregationServiceClient aggregationServiceClient;
 
     @RequestMapping("report")
     public String report() {
-        Report report = createDummyReport();
+        Report report = aggregationServiceClient.getReport();
 
         StringBuilder sb = new StringBuilder();
 
@@ -42,19 +44,5 @@ public class WebController {
         sb.append("</table>");
         sb.append("</body></html>");
         return sb.toString();
-    }
-
-
-    public Report createDummyReport() {
-        Map<DataType, BigInteger> set1 = new HashMap<>();
-        set1.put(DataType.TOTAL_SOLD_AMOUNT, BigInteger.ONE);
-
-        Map<DataType, BigInteger> set2 = new HashMap<>();
-        set2.put(DataType.TOTAL_SOLD_AMOUNT, BigInteger.ZERO);
-
-        Map<Country, Map<DataType, BigInteger>> reportData = Maps.newHashMap();
-        reportData.put(new Country("Germany"), set1);
-        reportData.put(new Country("Austria"), set2);
-        return new Report(new Date(System.currentTimeMillis()), reportData);
     }
 }
