@@ -6,7 +6,10 @@ This file can serve as a template for the resulting blog post.
 
 ## Our Use Case
 
-- TODO diagram
+- TODO architecture diagram
+- TODO screenshot from report
+- TODO screenshot from cloud dashboard
+- TODO screenshot from hystrix dashboard
 
 ## Our Findings
 
