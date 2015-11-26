@@ -27,7 +27,7 @@ public class AggregationServiceClient {
 	private RestTemplate restTemplate;
 
 	@HystrixCommand(
-		fallbackMethod="createDummyReport",
+		fallbackMethod="getCachedReport",
 		commandProperties={
 			@HystrixProperty(name="circuitBreaker.requestVolumeThreshold", value="2"),
 			@HystrixProperty(name="circuitBreaker.sleepWindowInMilliseconds", value="10000")
@@ -37,6 +37,19 @@ public class AggregationServiceClient {
 	public Report getReport() {
 		LOGGER.info("fetching data point from http://aggregator-service/");
 		return restTemplate.getForObject("http://aggregator-service/", Report.class);
+	}
+	
+	@HystrixCommand(
+			fallbackMethod="createDummyReport",
+			commandProperties={
+				@HystrixProperty(name="circuitBreaker.requestVolumeThreshold", value="2"),
+				@HystrixProperty(name="circuitBreaker.sleepWindowInMilliseconds", value="10000")
+			},
+			threadPoolKey="getCachedReportPool"
+		)
+	public Report getCachedReport() {
+		LOGGER.info("fetching data point from http://aggregated-report-cache/");
+		return restTemplate.getForObject("http://aggregated-report-cache/", Report.class);
 	}
 
 	public Report createDummyReport() {
