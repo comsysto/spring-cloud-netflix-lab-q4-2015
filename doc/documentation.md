@@ -13,13 +13,34 @@ This file can serve as a template for the resulting blog post.
 
 ## Our Use Case
 
-- TODO tell the story (robots selling ice, we want current reports)
-- TODO describe the structure
+Our business case is about an ice selling company, which is acting on worldwide locations. On each location there are ice selling robots. At the company's headquarter we want to show an aggregated report about the ice selling activities for each country.
+
+
+All our components are implemented as dedicated microservices using Spring Boot and Spring Cloud Netflix. Service discorvery is implemented using Eureka server. The communication between the microservices is RESTful.
+
 - TODO architecture diagram
+
+There is a basic location-service, which knows about all locations provided with ice-selling-robots. The data from all these locations have to be part of the report.
+
+For every location there is one microservice representing an ice-selling-robot. Every ice-selling-robot has locally stored information about the amount of totally sold ice cream and the remaining stock amount. Each of them continuously pushes these data to the central current-data-service. It fails with a certain rate, which is configured by a central Config Server.
+
+The current-data-service stores this information locally. Every time he receives an update from one of the ice-selling-robots, he takes the new value and forgets about the old one. Old values are also forgotten if their timestamp is too old.
+
+The current-data-service offers an interface by which the current value for the totally sold amount of ice cream or the remaining stock amount can be retretrieved for one location. This interface is used by an aggregator-service, which is able to generate and deliver an aggregated report on demand. For all locations provided by the location-service the current data is retrieved from the current-data-service, which is then aggregated by summing up the single values from the locations grouped by the locations country. The delivered report consists of the summed up values per country and data type (totally sold ice cream and remaining stock value).
+
+Because the connection between aggregator-service and current-data-service is quite slow, the calculation of the report takes a lot of time (we simply simulated this slow connection by some milliseconds sleep time for each incoming request). Therefore an aggregated report cache has been implemented as fallback. Switching to this fallback has been implemented using Hystrix. At fix intervals the cache is provided with the most actual report by an own historizing job. 
+
+The reporting service is the only service containing a user interface. It generates some kind of simple html-based dashboard, which can be used by the business section of our company to get an overview of all the different locations. The data presented to the user is retrieved from the aggregator-service. Because this service is expected to be slow and prone to failure, a fallback is implemented which retrieves the last report from the aggregated-report-cache.
+
 - TODO screenshot from report
+
+Eureka comes with a built-in dashboard, showing all registrated services:
+
 - TODO screenshot from cloud dashboard
+
+The circuit-breaker within the aggregator-service can be monitored from Hystrix dashboard.
+
 - TODO screenshot from hystrix dashboard
-- technologies from spring gacloud: eureka, hystrix, config server, hystrix dashboard
 
 ## Understanding the Bottleneck
 
