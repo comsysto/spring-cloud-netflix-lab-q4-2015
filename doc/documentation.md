@@ -1,15 +1,12 @@
 This file can serve as a template for the resulting blog post.
 
-# TODO give me a cool title
+# TODO decide on a title: Ice cream sales break microservices, Hystrix to the rescue / Everybody loves ice cream - and Spring Cloud Netflix!
 
-- In November 2015, we had the opportunity to spend three days with a greenfield project in order to get to know Spring Cloud Netflix.
-- At comSysto, we always try to evaluate technologies before their potential use in customer projects to make sure we know their pros and cons.
-- Of course, we had read about several aspects, but we never really got our hands dirty using it. This had to change!
-- Besides coming up with a simple scenario that can be completed within a few days, our main focus was on understanding potential problems in distributed systems.
-- First of all, any distributed system comes with the ubiquitous problem of failing services that should not break the entire application.
-- This is most prominently addressed by Netflix' "Simian Army" (https://github.com/Netflix/SimianArmy/wiki) which intentionally breaks random parts of the production environment.
-- However, we rather wanted to provoke problems arising under heavy load due to capacity limitations.
-- Therefore, we intentionally designed a distributed application with a bottleneck that turned into an actual problem with many simultaneous requests.
+In November 2015, we had the opportunity to spend three days with a greenfield project in order to get to know Spring Cloud Netflix. At comSysto, we always try to evaluate technologies before their potential use in customer projects to make sure we know their pros and cons. Of course, we had read about several aspects, but we never really got our hands dirty using it. This had to change!
+
+Besides coming up with a simple scenario that can be completed within a few days, our main focus was on understanding potential problems in distributed systems. First of all, any distributed system comes with the ubiquitous problem of failing services that should not break the entire application. This is most prominently addressed by Netflix' "Simian Army" (https://github.com/Netflix/SimianArmy/wiki) which intentionally breaks random parts of the production environment.
+
+However, we rather wanted to provoke problems arising under heavy load due to capacity limitations. Therefore, we intentionally designed a distributed application with a bottleneck that turned into an actual problem with many simultaneous requests.
 
 ## Our Use Case
 
@@ -106,18 +103,18 @@ By eliminating one part of our bottleneck, the value of report age significantly
 
 ## Our Lessons Learned
 
-- Spring Boot makes it really easy to build and run dozens of services, but really hard to figure out what is wrong when things do not work out of the box. Available Spring Cloud documentation is not always sufficient.
-- Eureka works like a charm when it comes to service discovery. Simply use the name of the target in an URL and put it into a RestTemplate.
-- Everything else is handled transparently - including client-side load balancing with Ribbon (https://github.com/Netflix/ribbon)!
-- In another lab on distributed systems, we spent a lot of time working around this issue. This time, everything was just right.
-- Measuring the effect of scaling out is nearly impossible on a developer machine. This could be easily achieved in the cloud.
+After all, we are quite happy with what we have achieved in three days. Besides building a working example from scratch and having a lot of fun while doing so, we were also able to gather some take-aways based on our experience.
+
+Spring Boot makes it really easy to build and run dozens of services, but really hard to figure out what is wrong when things do not work out of the box. Unfortunately, available Spring Cloud documentation is not always sufficient. Nevertheless, Eureka works like a charm when it comes to service discovery. Simply use the name of the target in an URL and put it into a RestTemplate. That's all! Everything else is handled transparently, including client-side load balancing with Ribbon (https://github.com/Netflix/ribbon)! In another lab on distributed systems, we spent a lot of time working around this issue. This time, everything was just right.
+
+Our poor deployment environment (3 MacBooks...) made serious performance analysis very hard. Measuring the effect of scaling out is nearly impossible on a developer machine due to its physical resource limitations. Having multiple instances of the same services doesn't give you anything if one of them already pushes the CPU to its limits. Luckily, there are almost infinite resources in the cloud nowadays which can be allocated in no time if required. It could be worth considering this option right away when working on microservice applications.
 
 ## In Brief: Should you use Spring Cloud Netflix?
 
-- So what is our recommendation after all?
-- We were totally impressed by the way Eureka makes service discovery as easy as it can be.
-- Given you are running Spring Boot, starting the Eureka server and making each microservice a Eureka client is nothing more than dependencies and annotations. On the other hand, we did not evaluate its integration in other environments.
-- Hystrix is very useful for preventing cascading errors throughout the system, but it cannot be used in a production environment without suitable monitoring unless you have a soft spot for flying blind.
-- Also, it introduces a few pitfalls during development. For example, when debugging a Hystrix command the calling code will probably detect a timeout in the meantime which can give you completely different behavior.
-- However, if you got the tools and skills to handle the additional complexity, Hystrix is definitely a winner.
-- In fact, this restriction applies to microservice architectures in general. You have to go a long way for being able to run it - but once you are, you can scale almost infinitely.
+So what is our recommendation after all?
+
+First, we were totally impressed by the way Eureka makes service discovery as easy as it can be. Given you are running Spring Boot, starting the Eureka server and making each microservice a Eureka client is nothing more than dependencies and annotations. On the other hand, we did not evaluate its integration in other environments.
+
+Second, Hystrix is very useful for preventing cascading errors throughout the system, but it cannot be used in a production environment without suitable monitoring unless you have a soft spot for flying blind. Also, it introduces a few pitfalls during development. For example, when debugging a Hystrix command the calling code will probably detect a timeout in the meantime which can give you completely different behavior. However, if you got the tools and skills to handle the additional complexity, Hystrix is definitely a winner.
+
+In fact, this restriction applies to microservice architectures in general. You have to go a long way for being able to run it - but once you are, you can scale almost infinitely. Feel free to have a look at the code we produced at TODO github Link or discuss whatever you are up to at one of our user groups (https://comsysto.com/community.html#user-groups).
