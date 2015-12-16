@@ -48,7 +48,7 @@ The circuit-breaker within the aggregator-service can be monitored from Hystrix 
 
 - This way we can easily max out the capacity for on-demand generated reports, forcing the system to the fallback of the cached report.
 
-The relevant part of the reporting-services declaration looks as depicted in the following code snippet. The primary call getReport() is annotated to use the cached report as fallbackMethod with @HystrixCommand : 
+The relevant part of the reporting-services declaration looks as depicted in the following code snippet. The primary call getReport() is annotated with @HystrixCommand and configured to use the cached report as fallbackMethod  : 
 
 ```
 @HystrixCommand(
@@ -64,15 +64,16 @@ public Report getCachedReport() {
 }	
 ```
 
-From the user perspective it's fairly easy to tell wich of both methods in question has actually been used.  
-Every served report contains a field wich denotes the age of the report, wich simply is put together as the time delta between the creation of a report and the time this report has been served.  
-As soon as the reporing-service delegates incoming requests to the fallback method, thus serving the cached report data, the age of the served report starts to increase.
+From the user perspective it's fairly easy to tell wich of both methods in question has actually been used:  
+Every served report contains a field wich denotes the age of the report. This value simply is put together as the time delta between the creation of a report and the time this report has been served.  
+As soon as the reporing-service delegates incoming requests to the fallback method, the age of the served report starts to increase.
  
 ## Testing 
 
-From now on it should be fairly easy to force the system into calling the fallback method. 
+With our bottleneck set up it should be fairly easy to force the system into calling the fallback method. 
 
-We decide to do so with jmeter. Therefore we configure requests to the reporing-service. During multiple following test runs we adjust the amount of our simulated parallel users to trigger the expected internal behaviour while keeping an eye on the observable responses.  
+We decide to do so with jmeter. Therefore we configure requests to the reporting-service. 
+During multiple following test runs we adjust the amount of our simulated parallel users to trigger the expected internal behaviour while keeping an eye on the observable responses.  
 
 Our main setup includes:  
 Measurement with 1 aggregation server, 1min test duration, 500ms Hit-Rate per Thread, Historize-Job-Rate 30s, thread pool size: 5
@@ -81,9 +82,10 @@ We conduct test runs with a jmeter thread pool size (=number of concurrent simul
  
 Although we were quite curious, the results pretty much reflect our exceptions. 
 When using a jmeter thread count below the size of the service thread pool, the servics calls result in 100% success.
-Setting sizes of both pools equal already gives a mall noticeable error rate. And setting the size higher than the thread pool results in growing failures and fallbacks.
+Setting sizes of both pools equal already gives a mall noticeable error rate. And setting the size higher than the thread pool results in growing failures and fallbacks, also forcing the circuit breaker into short circuit state.
+Our measured results a noted in the following table: 
 
-number of concurrent jmeter threads and the resulting average report age 
+TABLE: number of concurrent jmeter threads and the resulting average report age 
 - 3 threads: 0,78s average age
 - 5 threads: 1,08s average age
 - 7 threads: 3,05s average age
