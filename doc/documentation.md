@@ -13,24 +13,24 @@ This file can serve as a template for the resulting blog post.
 
 ## Our Use Case
 
-Our business case is about an ice selling company, which is acting on worldwide locations. On each location there are ice selling robots. At the company's headquarter we want to show an aggregated report about the ice selling activities for each country.
+Our business case is about an ice selling company, which is acting on worldwide locations. On each location there are ice selling robots. At the company's headquarters we want to show an aggregated report about the ice selling activities for each country.
 
 
-All our components are implemented as dedicated microservices using Spring Boot and Spring Cloud Netflix. Service discorvery is implemented using Eureka server. The communication between the microservices is RESTful.
+All our components are implemented as dedicated microservices using Spring Boot and Spring Cloud Netflix. Service discovery is implemented using Eureka server. The communication between the microservices is RESTful.
 
 - TODO architecture diagram
 
-There is a basic location-service, which knows about all locations provided with ice-selling-robots. The data from all these locations have to be part of the report.
+There is a basic location-service, which knows about all locations provided with ice-selling-robots. The data from all these locations has to be part of the report.
 
-For every location there is one microservice representing an ice-selling-robot. Every ice-selling-robot has locally stored information about the amount of totally sold ice cream and the remaining stock amount. Each of them continuously pushes these data to the central current-data-service. It fails with a certain rate, which is configured by a central Config Server.
+For every location, there is one instance of the corresponding microservice representing an ice-selling-robot. Every ice-selling-robot has locally stored information about the amount of totally sold ice cream and the remaining stock amount. Each of them continuously pushes this data to the central current-data-service. It fails with a certain rate, which is configured by a central Config Server.
 
-The current-data-service stores this information locally. Every time he receives an update from one of the ice-selling-robots, he takes the new value and forgets about the old one. Old values are also forgotten if their timestamp is too old.
+For the sake of simplicity, the current-data-service stores this information in-memory. Every time it receives an update from one of the ice-selling-robots, it takes the new value and forgets about the old one. Old values are also forgotten if their timestamp is too old.
 
-The current-data-service offers an interface by which the current value for the totally sold amount of ice cream or the remaining stock amount can be retretrieved for one location. This interface is used by an aggregator-service, which is able to generate and deliver an aggregated report on demand. For all locations provided by the location-service the current data is retrieved from the current-data-service, which is then aggregated by summing up the single values from the locations grouped by the locations country. The delivered report consists of the summed up values per country and data type (totally sold ice cream and remaining stock value).
+The current-data-service offers an interface by which the current value for the totally sold amount of ice cream or the remaining stock amount can be retrieved for one location. This interface is used by an aggregator-service, which is able to generate and deliver an aggregated report on demand. For all locations provided by the location-service the current data is retrieved from the current-data-service, which is then aggregated by summing up the single values from the locations grouped by the locations' country. The resulting report consists of the summed up values per country and data type (totally sold ice cream and remaining stock value).
 
-Because the connection between aggregator-service and current-data-service is quite slow, the calculation of the report takes a lot of time (we simply simulated this slow connection with a wifi connection, wich is slow compared to an internal service call on the same machine). Therefore an aggregated report cache has been implemented as fallback. Switching to this fallback has been implemented using Hystrix. At fix intervals the cache is provided with the most actual report by an own historizing job. 
+Because the connection between aggregator-service and current-data-service is quite slow, the calculation of the report takes a lot of time (we simply simulated this slow connection with a wifi connection, which is slow compared to an internal service call on the same machine). Therefore, an aggregated report cache has been implemented as fallback. Switching to this fallback has been implemented using Hystrix. At fixed intervals the cache is provided with the most current report by a simple scheduled job. 
 
-The reporting service is the only service containing a user interface. It generates some kind of simple html-based dashboard, which can be used by the business section of our company to get an overview of all the different locations. The data presented to the user is retrieved from the aggregator-service. Because this service is expected to be slow and prone to failure, a fallback is implemented which retrieves the last report from the aggregated-report-cache.
+The reporting service is the only service with a graphical user interface. It generates a very simplistic html-based dashboard, which can be used by the business section of our company to get an overview of all the different locations. The data presented to the user is retrieved from the aggregator-service. Because this service is expected to be slow and prone to failure, a fallback is implemented which retrieves the last report from the aggregated-report-cache. With this, the user can always request a report within an acceptable response time even though it might be slightly outdated. This is a typical example for maintaining maximum service quality in case of partial failure. 
 
 - TODO screenshot from report
 
