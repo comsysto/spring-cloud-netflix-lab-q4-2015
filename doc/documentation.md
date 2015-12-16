@@ -28,7 +28,7 @@ The current-data-service stores this information locally. Every time he receives
 
 The current-data-service offers an interface by which the current value for the totally sold amount of ice cream or the remaining stock amount can be retretrieved for one location. This interface is used by an aggregator-service, which is able to generate and deliver an aggregated report on demand. For all locations provided by the location-service the current data is retrieved from the current-data-service, which is then aggregated by summing up the single values from the locations grouped by the locations country. The delivered report consists of the summed up values per country and data type (totally sold ice cream and remaining stock value).
 
-Because the connection between aggregator-service and current-data-service is quite slow, the calculation of the report takes a lot of time (we simply simulated this slow connection by some milliseconds sleep time for each incoming request). Therefore an aggregated report cache has been implemented as fallback. Switching to this fallback has been implemented using Hystrix. At fix intervals the cache is provided with the most actual report by an own historizing job. 
+Because the connection between aggregator-service and current-data-service is quite slow, the calculation of the report takes a lot of time (we simply simulated this slow connection with a wifi connection, wich is slow compared to an internal service call on the same machine). Therefore an aggregated report cache has been implemented as fallback. Switching to this fallback has been implemented using Hystrix. At fix intervals the cache is provided with the most actual report by an own historizing job. 
 
 The reporting service is the only service containing a user interface. It generates some kind of simple html-based dashboard, which can be used by the business section of our company to get an overview of all the different locations. The data presented to the user is retrieved from the aggregator-service. Because this service is expected to be slow and prone to failure, a fallback is implemented which retrieves the last report from the aggregated-report-cache.
 
@@ -43,12 +43,57 @@ The circuit-breaker within the aggregator-service can be monitored from Hystrix 
 - TODO screenshot from hystrix dashboard
 
 ## Understanding the Bottleneck
+- In addition to delaying the execution time of the aggragator-service we also allocated a thread pool of limited size for the getReport call itself. 
+- As a result, the number of concurrent (or "parallel") calls to the report-service is limited (roughly) to the size of the thread pool.
 
-Measurement with 1 aggregation server, 1min, 500ms Hit-Rate per Thread, Historize-Job-Rate 30s
+- This way we can easily max out the capacity for on-demand generated reports, forcing the system to the fallback of the cached report.
+
+The relevant part of the reporting-services declaration looks as depicted in the following code snippet. The primary call getReport() is annotated to use the cached report as fallbackMethod with @HystrixCommand : 
+
+```
+@HystrixCommand(
+    fallbackMethod="getCachedReport",
+    threadPoolKey="getReportPool"
+)
+public Report getReport() {
+    return restTemplate.getForObject("http://aggregator-service/", Report.class);
+}
+
+public Report getCachedReport() {
+    return restTemplate.getForObject("http://aggregated-report-cache/", Report.class);
+}	
+```
+
+From the user perspective it's fairly easy to tell wich of both methods in question has actually been used.  
+Every served report contains a field wich denotes the age of the report, wich simply is put together as the time delta between the creation of a report and the time this report has been served.  
+As soon as the reporing-service delegates incoming requests to the fallback method, thus serving the cached report data, the age of the served report starts to increase.
+ 
+## Testing 
+
+From now on it should be fairly easy to force the system into calling the fallback method. 
+
+We decide to do so with jmeter. Therefore we configure requests to the reporing-service. During multiple following test runs we adjust the amount of our simulated parallel users to trigger the expected internal behaviour while keeping an eye on the observable responses.  
+
+Our main setup includes:  
+Measurement with 1 aggregation server, 1min test duration, 500ms Hit-Rate per Thread, Historize-Job-Rate 30s, thread pool size: 5
+
+We conduct test runs with a jmeter thread pool size (=number of concurrent simulated users) of 3, 5 and 7.
+ 
+Although we were quite curious, the results pretty much reflect our exceptions. 
+When using a jmeter thread count below the size of the service thread pool, the servics calls result in 100% success.
+Setting sizes of both pools equal already gives a mall noticeable error rate. And setting the size higher than the thread pool results in growing failures and fallbacks.
+
+number of concurrent jmeter threads and the resulting average report age 
 - 3 threads: 0,78s average age
 - 5 threads: 1,08s average age
 - 7 threads: 3,05s average age
+
+additionally, after gaining these results, we changed the setup in a way that eliminates the slow connection. We did this by moving the current data service to the same machine as the aggregation-service.
+Thus the slow connection has now been replaced with an internal, fast connection. 
+With this new setup we conduct a final test run, gaining the following result:
+  
 - 7 threads, fast network: 0,74s average age
+By eliminating one part of our bottleneck, the value of report age significantly drops to somewhere close below the first test run.  
 
 - the critical point of the entire system is the aggregation due to its slow connection
 - remedy 1: scale out (hard to test on our computer which already run so many threads)
