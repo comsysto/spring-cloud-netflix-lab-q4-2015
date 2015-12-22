@@ -99,9 +99,13 @@ With the new setup we conduct an additional test run, gaining the following resu
 By eliminating one part of our bottleneck, the value of report age significantly drops to a figure close below the first test run.
 
 
-## how to handle a bottleck
+## Remedies
 
 The critical point of the entire system is the aggregation due to its slow connection.
+To address the issue, different measures can be taken. 
+In our theoretical case it is possible to scale out by adding additional instances of the reporting-service.
+A more sustaining approach would be to optimize the slow connection, as seen in our additional measurements.
+
 - remedy 1: scale out (hard to test on our computer which already run so many threads)
 - remedy 2: optimize slow connection (see measurement)
 - TODO statistics / tables
