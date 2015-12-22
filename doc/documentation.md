@@ -41,9 +41,9 @@ The circuit-breaker within the aggregator-service can be monitored from Hystrix 
 
 ## Understanding the Bottleneck
 In addition to the increased execution time of the aggragator-service we also allocated a thread pool of limited size for the report generation. 
-As a result, the number of concurrent (or "parallel") calls to the report-service is limited (roughly) to the size of the thread pool.
+As a result, the number of concurrent (or "parallel") calls to the report-service is limited by the size of the thread pool.
 This way we can easily exploit the capacity for on-demand generated reports, forcing the system to fall back to the cached report.
-The relevant part of the reporting-services declaration looks as depicted in the following code snippet. 
+The relevant part of the reporting-services internal declaration looks as depicted in the following code snippet. 
 The primary method getReport() is annotated with @HystrixCommand and configured to use the cached report as fallbackMethod: 
 
 ```
@@ -61,8 +61,8 @@ public Report getCachedReport() {
 ```
 
 
-In order to be able to distinguish primary and fallback calls from the end users point of view, every served report includes a timestamp reflecting the time delta between the creation and serving of time the report.  
-As soon as the reporting-service delegates incoming requests to the fallback method, the age of the served report starts to increase visibly.
+In order to be able to distinguish primary and fallback calls from the end users point of view, we decided to include a timestamp in every served report to indicate the delta between the creation and serving time of a report.  
+Thus, as soon as the reporting-service delegates incoming requests to the fallback method, the age of the served report starts to increase visibly.
  
 ## Testing 
 
@@ -91,7 +91,7 @@ TABLE: number of concurrent jmeter threads and the resulting average report age
 - 7 threads: 3,05s average age
 
 After gaining these results, we changed the setup in a way that eliminates the slow connection. 
-We did so by moving the current data service to the same machine as the aggregation-service.
+We did so by deploying the current data service to the same machine as the aggregation-service.
 Thus, the slow connection has now been eliminated and replaced with an internal, fast connection. 
 With the new setup we conduct an additional test run, gaining the following result:
   
