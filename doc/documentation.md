@@ -40,11 +40,9 @@ The circuit-breaker within the aggregator-service can be monitored from Hystrix 
 - TODO screenshot from hystrix dashboard
 
 ## Understanding the Bottleneck
-- In addition to delaying the execution time of the aggragator-service we also allocated a thread pool of limited size for the getReport call itself. 
-- As a result, the number of concurrent (or "parallel") calls to the report-service is limited (roughly) to the size of the thread pool.
-
-- This way we can easily max out the capacity for on-demand generated reports, forcing the system to the fallback of the cached report.
-
+In addition to the increased execution time of the aggragator-service we also allocated a thread pool of limited size for the report generation. 
+As a result, the number of concurrent (or "parallel") calls to the report-service is limited (roughly) to the size of the thread pool.
+This way we can easily exploit the capacity for on-demand generated reports, forcing the system to the fallback of the cached report.
 The relevant part of the reporting-services declaration looks as depicted in the following code snippet. The primary call getReport() is annotated with @HystrixCommand and configured to use the cached report as fallbackMethod  : 
 
 ```
@@ -61,40 +59,45 @@ public Report getCachedReport() {
 }	
 ```
 
-From the user perspective it's fairly easy to tell wich of both methods in question has actually been used:  
-Every served report contains a field wich denotes the age of the report. This value simply is put together as the time delta between the creation of a report and the time this report has been served.  
-As soon as the reporing-service delegates incoming requests to the fallback method, the age of the served report starts to increase.
+From the end user perspective it possible to tell whether the primary or fallback method has been used to serve the report:  
+Every served report is enhanced with a timestamp that set as the time delta between the creation of a report and the time the report has been served.  
+As soon as the reporting-service delegates incoming requests to the fallback method, the age of the served report starts to increase visibly.
  
 ## Testing 
 
 With our bottleneck set up it should be fairly easy to force the system into calling the fallback method. 
 
-We decide to do so with jmeter. Therefore we configure requests to the reporting-service. 
+Using jmeter we configure a testing scenario with simultaneous requests to the reporting-service. 
 During multiple following test runs we adjust the amount of our simulated parallel users to trigger the expected internal behaviour while keeping an eye on the observable responses.  
 
-Our main setup includes:  
-Measurement with 1 aggregation server, 1min test duration, 500ms Hit-Rate per Thread, Historize-Job-Rate 30s, thread pool size: 5
+Basic data of our system under test:  
+aggregation-server instances: 1, 
+test duration: 60s, 
+hit rate per thread: 500ms, 
+Historize-Job-Rate: 30s, 
+thread pool size for the getReport command: 5
 
-We conduct test runs with a jmeter thread pool size (=number of concurrent simulated users) of 3, 5 and 7.
+We conduct different test runs with a jmeter thread pool size (=number of concurrent simulated users) of 3, 5 and 7.
  
 Although we were quite curious, the results pretty much reflect our exceptions. 
-When using a jmeter thread count below the size of the service thread pool, the servics calls result in 100% success.
-Setting sizes of both pools equal already gives a mall noticeable error rate. And setting the size higher than the thread pool results in growing failures and fallbacks, also forcing the circuit breaker into short circuit state.
-Our measured results a noted in the following table: 
+When using a jmeter thread count below the size of the service thread pool, the reporting-service calls result in 100% success.
+Setting sizes of both pools equal already gives a small noticeable error rate. Finally, setting the size higher than the thread pool results in growing failures and fallbacks, also forcing the circuit breaker into short circuit states.
+Our measured results are denoted in the following table: 
 
 TABLE: number of concurrent jmeter threads and the resulting average report age 
 - 3 threads: 0,78s average age
 - 5 threads: 1,08s average age
 - 7 threads: 3,05s average age
 
-additionally, after gaining these results, we changed the setup in a way that eliminates the slow connection. We did this by moving the current data service to the same machine as the aggregation-service.
-Thus the slow connection has now been replaced with an internal, fast connection. 
-With this new setup we conduct a final test run, gaining the following result:
+Additionally, after gaining these results, we changed the setup in a way that eliminates the slow connection. 
+We did so by moving the current data service to the same machine as the aggregation-service.
+Thus, the slow connection has now been eliminated and replaced with an internal, fast connection. 
+With the new setup we conduct an additional test run, gaining the following result:
   
 - 7 threads, fast network: 0,74s average age
-By eliminating one part of our bottleneck, the value of report age significantly drops to somewhere close below the first test run.  
+By eliminating one part of our bottleneck, the value of report age significantly drops to a figure close below the first test run.  
 
-- the critical point of the entire system is the aggregation due to its slow connection
+# - the critical point of the entire system is the aggregation due to its slow connection
 - remedy 1: scale out (hard to test on our computer which already run so many threads)
 - remedy 2: optimize slow connection (see measurement)
 - TODO statistics / tables
