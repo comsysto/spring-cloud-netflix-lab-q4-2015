@@ -106,11 +106,11 @@ Last but not least, we could also design our application for always using the ca
 
 ## Our Lessons Learned
 
-After all, we are quite happy with what we have achieved in three days. Besides building a working example from scratch and having a lot of fun while doing so, we were also able to gather some take-aways based on our experience.
+Instead, let us explain a few take-aways based on our humble experience of building a simple example from scratch.
 
 Spring Boot makes it really easy to build and run dozens of services, but really hard to figure out what is wrong when things do not work out of the box. Unfortunately, available Spring Cloud documentation is not always sufficient. Nevertheless, Eureka works like a charm when it comes to service discovery. Simply use the name of the target in an URL and put it into a RestTemplate. That's all! Everything else is handled transparently, including client-side load balancing with Ribbon (https://github.com/Netflix/ribbon)! In another lab on distributed systems, we spent a lot of time working around this issue. This time, everything was just right.
 
-Our poor deployment environment (3 MacBooks...) made serious performance analysis very hard. Measuring the effect of scaling out is nearly impossible on a developer machine due to its physical resource limitations. Having multiple instances of the same services doesn't give you anything if one of them already pushes the CPU to its limits. Luckily, there are almost infinite resources in the cloud nowadays which can be allocated in no time if required. It could be worth considering this option right away when working on microservice applications.
+Furthermore, our poor deployment environment (3 MacBooks...) made serious performance analysis very hard. Measuring the effect of scaling out is nearly impossible on a developer machine due to its physical resource limitations. Having multiple instances of the same services doesn't give you anything if one of them already pushes the CPU to its limits. Luckily, there are almost infinite resources in the cloud nowadays which can be allocated in no time if required. It could be worth considering this option right away when working on microservice applications.
 
 ## In Brief: Should you use Spring Cloud Netflix?
 
