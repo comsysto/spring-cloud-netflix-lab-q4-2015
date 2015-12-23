@@ -43,7 +43,7 @@ The circuit-breaker within the aggregator-service can be monitored from Hystrix 
 In addition to the increased execution time of the aggragator-service we also allocated a thread pool of limited size for the report generation. 
 As a result, the number of concurrent (or "parallel") calls to the report-service is limited by the size of the thread pool.
 This way we can easily exploit the capacity for on-demand generated reports, forcing the system to fall back to the cached report.
-The relevant part of the reporting-services internal declaration looks as depicted in the following code snippet. 
+The relevant part of the reporting-service's internal declaration looks as depicted in the following code snippet (note the descriptive URLs that are resolved by Eureka). 
 The primary method getReport() is annotated with @HystrixCommand and configured to use the cached report as fallbackMethod: 
 
 ```
@@ -60,14 +60,13 @@ public Report getCachedReport() {
 }	
 ```
 
-
-In order to be able to distinguish primary and fallback calls from the end users point of view, we decided to include a timestamp in every served report to indicate the delta between the creation and serving time of a report.  
-Thus, as soon as the reporting-service delegates incoming requests to the fallback method, the age of the served report starts to increase visibly.
+In order to be able to distinguish primary and fallback calls from the end user's point of view, we decided to include a timestamp in every served report to indicate the delta between the creation and serving time of a report.  
+Thus, as soon as the reporting-service delegates incoming requests to the fallback method, the age of the served report starts to increase.
  
 ## Testing 
 
 With our bottleneck set up, testing and observing the runtime behaviour is fairly easy. 
-Using jmeter we configure a testing scenario with simultaneous requests to the reporting-service. 
+Using jmeter we configured a testing scenario with simultaneous requests to the reporting-service. 
   
 Basic data of our scenario:  
 aggregation-server instances: 1, 
@@ -76,7 +75,7 @@ hit rate per thread: 500ms,
 Historize-Job-Rate: 30s, 
 thread pool size for the getReport command: 5
 
-Using the described setup we conduct different test runs with a jmeter thread pool size (=number of concurrent simulated users) of 3, 5 and 7.
+Using the described setup we conducted different test runs with a jmeter thread pool size (=number of concurrent simulated users) of 3, 5 and 7.
 
 Analyzing the served reports timestamps leads us to the following conclusion:  
  
@@ -91,26 +90,20 @@ TABLE: number of concurrent jmeter threads and the resulting average report age
 - 7 threads: 3,05s average age
 
 After gaining these results, we changed the setup in a way that eliminates the slow connection. 
-We did so by deploying the current data service to the same machine as the aggregation-service.
-Thus, the slow connection has now been eliminated and replaced with an internal, fast connection. 
-With the new setup we conduct an additional test run, gaining the following result:
+We did so by deploying the current-data-service to the same machine as the aggregation-service.
+Thus, the slow connection has now been removed and replaced with an internal, fast connection. 
+With the new setup we conducted an additional test run, gaining the following result:
   
 - 7 threads, fast network: 0,74s average age
 By eliminating one part of our bottleneck, the value of report age significantly drops to a figure close below the first test run.
-
 
 ## Remedies
 
 The critical point of the entire system is the aggregation due to its slow connection.
 To address the issue, different measures can be taken. 
-In our theoretical case it is possible to scale out by adding additional instances of the reporting-service.
-A more sustaining approach would be to optimize the slow connection, as seen in our additional measurements.
-
-- remedy 1: scale out (hard to test on our computer which already run so many threads)
-- remedy 2: optimize slow connection (see measurement)
-- TODO statistics / tables
-- remedy 3: design for always using the cache (only applicable when results are identical for all users. could be done here, but only because we have a simplistic scenario.)
-- note that the job filling the cache can also fail under heavy load!
+First, it is possible to scale out by adding additional service instances. Unfortunately, this was hard to test given the hardware at hand.
+Second, another approach would be to optimize the slow connection, as seen in our additional measurements.
+Last but not least, we could also design our application for always using the cache assuming that all users should see the same report. In our simplistic scenario this would work, but of course that is not what we wanted to analyze in the first place.
 
 ## Our Lessons Learned
 
