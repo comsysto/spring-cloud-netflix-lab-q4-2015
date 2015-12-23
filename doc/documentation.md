@@ -1,6 +1,6 @@
 This file can serve as a template for the resulting blog post.
 
-# TODO decide on a title: Ice cream sales break microservices, Hystrix to the rescue / Everybody loves ice cream - and Spring Cloud Netflix!
+# Ice cream sales break microservices, Hystrix to the rescue
 
 In November 2015, we had the opportunity to spend three days with a greenfield project in order to get to know Spring Cloud Netflix. At comSysto, we always try to evaluate technologies before their potential use in customer projects to make sure we know their pros and cons. Of course, we had read about several aspects, but we never really got our hands dirty using it. This had to change!
 
