@@ -25,7 +25,7 @@ For the sake of simplicity, the current-data-service stores this information in-
 
 The current-data-service offers an interface by which the current value for the totally sold amount of ice cream or the remaining stock amount can be retrieved for one location. This interface is used by an aggregator-service, which is able to generate and deliver an aggregated report on demand. For all locations provided by the location-service the current data is retrieved from the current-data-service, which is then aggregated by summing up the single values from the locations grouped by the locations' country. The resulting report consists of the summed up values per country and data type (totally sold ice cream and remaining stock value).
 
-Because the connection between aggregator-service and current-data-service is quite slow, the calculation of the report takes a lot of time (we simply simulated this slow connection with a wifi connection, which is slow compared to an internal service call on the same machine). Therefore, an aggregated report cache has been implemented as fallback. Switching to this fallback has been implemented using Hystrix. At fixed intervals the cache is provided with the most current report by a simple scheduled job. 
+Because the connection between aggregator-service and current-data-service is quite slow, the calculation of the report takes a lot of time (we simply simulated this slow connection with a wifi connection, which is slow in comparison with an internal service call on the same machine). Therefore, an aggregated report cache has been implemented as fallback. Switching to this fallback has been implemented using Hystrix. At fixed intervals the cache is provided with the most current report by a simple scheduled job. 
 
 The reporting service is the only service with a graphical user interface. It generates a very simplistic html-based dashboard, which can be used by the business section of our company to get an overview of all the different locations. The data presented to the user is retrieved from the aggregator-service. Because this service is expected to be slow and prone to failure, a fallback is implemented which retrieves the last report from the aggregated-report-cache. With this, the user can always request a report within an acceptable response time even though it might be slightly outdated. This is a typical example for maintaining maximum service quality in case of partial failure. 
 
@@ -40,9 +40,8 @@ The circuit-breaker within the aggregator-service can be monitored from Hystrix 
 - TODO screenshot from hystrix dashboard
 
 ## Understanding the Bottleneck
-In addition to the increased execution time of the aggragator-service we also allocated a thread pool of limited size for the report generation. 
-As a result, the number of concurrent (or "parallel") calls to the report-service is limited by the size of the thread pool.
-This way we can easily exploit the capacity for on-demand generated reports, forcing the system to fall back to the cached report.
+When using Hystrix, all connectors to external services typically have a thread pool of limited size to isolate system resources. As a result, the number of concurrent (or "parallel") calls from the aggregator-service to the report-service is limited by the size of the thread pool. This way we can easily overstress the capacity for on-demand generated reports, forcing the system to fall back to the cached report.
+
 The relevant part of the reporting-service's internal declaration looks as depicted in the following code snippet (note the descriptive URLs that are resolved by Eureka). 
 The primary method getReport() is annotated with @HystrixCommand and configured to use the cached report as fallbackMethod: 
 
